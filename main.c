@@ -6,6 +6,8 @@ int factorizador (int num);
 int potenciador (int num, int potencia);
 int cargarArreglo(int arreglo[],int dim);
 void mostrarArregloINT (int arreglo[], int validos);
+void cargaArchivo(FILE *archi);
+int leerArchi(FILE* archi);
 
 int main()
 {
@@ -20,6 +22,8 @@ int main()
     int arreglo[dim];
     int suma;
     int menor;
+    char archivo[] = {"miArchivo.bin"};
+    FILE* archi;
 
 
     printf("================MENU================\n");
@@ -85,7 +89,7 @@ int main()
 
     case 5: //Determinar en forma recursiva si un arreglo es capicúa.
 
-         validos = cargarArreglo(arreglo, dim);
+        validos = cargarArreglo(arreglo, dim);
 
         if (chequeaCapicua(arreglo, validos, 0)==0)
         {
@@ -114,11 +118,24 @@ int main()
         printf("\nEL MENOR ES: %i", menor);
         break;
 
-    case 8:
+    case 8: //Buscar el menor elemento de un archivo de números enteros de forma recursiva. (desde el mismo archivo)
+
+        archi = fopen(archivo, "ab");
+        cargaArchivo(archi);
+        fclose (archi);
+
+        archi = fopen(archivo, "rb");
+        menor = leerArchi(archi);
+        fclose (archi);
+        printf("MENOR: %i", menor);
+
+
+
 
         break;
 
     case 9:
+
         break;
 
     case 10:
@@ -281,4 +298,59 @@ int buscarMenor(int arreglo[], int validos)
 
     return menor;
 }
+
+void cargaArchivo(FILE *archi)
+{
+    char opt = 's';
+    int num;
+    if (archi != NULL)
+    {
+        while (opt == 's')
+        {
+            printf("Ingrese un numero: \n");
+            fflush(stdin);
+            scanf("%i", &num);
+            fwrite(&num, sizeof(int), 1, archi);
+
+            printf("Si desea continuar ingrese s\n");
+            fflush(stdin);
+            scanf("%c", &opt);
+
+        }
+
+    }
+    else
+    {
+        printf("EL ARCHIVO NO EXISTE");
+    }
+}
+
+int leerArchi(FILE* archi)
+{
+    int num;
+    int menor;
+    if(archi != NULL)
+    {
+        if (fread(&num, sizeof(int),1, archi)== 0)
+        {
+            fseek(archi, sizeof(int)*-1, SEEK_CUR);
+            fread(&menor, sizeof(int),1, archi);
+
+
+        }
+        else
+        {
+            menor = leerArchi(archi);
+            if(num<menor)
+            {
+                menor = num;
+            }
+
+
+        }
+
+    }
+    return menor;
+}
+
 
